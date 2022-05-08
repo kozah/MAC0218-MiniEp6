@@ -1,0 +1,9 @@
+sudo docker image build . -t custom_caddy:2.5.1
+
+sudo docker container run \
+    --name caddy1212 \
+	-p 1212:80 \
+    -v ${PWD}/docker_files/index.html:/usr/src/pages/index.html \
+    -v ${PWD}/docker_files/about.html:/usr/src/pages/about.html \
+    -v ${PWD}/docker_files/Caddyfile:/etc/caddy/Caddyfile \
+    -d custom_caddy:2.5.1
