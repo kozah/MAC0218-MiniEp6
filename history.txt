@@ -1,0 +1,37 @@
+# Comandos de instalação do docker
+sudo apt-get remove docker docker-engine docker.io containerd runc
+sudo apt-get update
+sudo apt-get install \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \\n  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+# Testes com o caddy
+docker pull caddy
+docker run -d -p 80:80 \
+    -v $PWD/Caddyfile:/etc/caddy/Caddyfile \
+    -v caddy_data:/data \
+    caddy
+caddy_container_id=$(docker ps | grep caddy | awk '{print $1;}')
+docker exec -w /etc/caddy $caddy_container_id caddy reload
+
+# Comandos para ver containeres, parar, excluir
+docker container ls -a
+docker system prune -a
+docker stop $(docker container ls -q)
+
+# Comandos das tarefas em si
+sudo docker image build . -t custom_caddy:2.5.1
+
+sudo docker container run \
+    --name caddy1212 \
+	-p 1212:80 \
+    -v ${PWD}/docker_files/index.html:/usr/src/pages/index.html \
+    -v ${PWD}/docker_files/about.html:/usr/src/pages/about.html \
+    -v ${PWD}/docker_files/Caddyfile:/etc/caddy/Caddyfile \
+    -d custom_caddy:2.5.1
